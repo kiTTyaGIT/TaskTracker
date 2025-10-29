@@ -1,6 +1,6 @@
 import uvicorn
 from fastapi import FastAPI
-from routers import employee_router
+from routers import employee_router, project_router
 
 app = FastAPI(
     title="Employee Management API",
@@ -9,6 +9,7 @@ app = FastAPI(
 )
 
 app.include_router(employee_router.router)
+app.include_router(project_router.router)
 
 @app.get("/")
 async def root():

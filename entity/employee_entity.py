@@ -14,4 +14,4 @@ class Employee(Base):
     mail = Column(Text)
 
     def __repr__(self):
-        return f"<Employee(id={self.id}, username='{self.name}')>"
+        return f"<Employee(id={self.id}, name='{self.name}')>"
