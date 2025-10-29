@@ -13,6 +13,16 @@ app.include_router(employee_router.router)
 app.include_router(project_router.router)
 app.include_router(employee_project_router.router)
 
+from fastapi.middleware.cors import CORSMiddleware
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:8501"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 @app.get("/")
 async def root():
     return {"message": "Management System"}
