@@ -1,27 +1,27 @@
-from db import get_db
-from repository.employee_repository import UserRepository
+import uvicorn
+from fastapi import FastAPI
+from routers import employee_router
 
+app = FastAPI(
+    title="Employee Management API",
+    description="API для управления сотрудниками",
+    version="1.0.0"
+)
 
-def main():
-    db = next(get_db())
-    user_repo = UserRepository(db)
+app.include_router(employee_router.router)
 
-    try:
-        # Создание пользователя
-        new_user = user_repo.create_user({
-            "name": "Петя",
-            "surname": "Петев",
-            "mail": "petya@example.com",
-            "phone_number": "+79999999997",
-        })
-        print(f"Created user: {new_user}")
+@app.get("/")
+async def root():
+    return {"message": "Employee Management System"}
 
-    except Exception as e:
-        print(f"Error: {e}")
-        db.rollback()
-    finally:
-        db.close()
-
+@app.get("/health")
+async def health_check():
+    return {"status": "healthy"}
 
 if __name__ == "__main__":
-    main()
+    uvicorn.run(
+        app,
+        host="0.0.0.0",
+        port=8090,
+        reload=False
+    )
