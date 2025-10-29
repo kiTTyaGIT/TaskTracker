@@ -1,6 +1,6 @@
 import uvicorn
 from fastapi import FastAPI
-from routers import employee_router, project_router, employee_project_router
+from routers import employee_router, project_router, employee_project_router, task_router
 
 app = FastAPI(
     title="Management API",
@@ -8,6 +8,7 @@ app = FastAPI(
     version="1.0.0"
 )
 
+app.include_router(task_router.router)
 app.include_router(employee_router.router)
 app.include_router(project_router.router)
 app.include_router(employee_project_router.router)
