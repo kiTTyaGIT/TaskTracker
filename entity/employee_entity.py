@@ -1,7 +1,5 @@
-from sqlalchemy import Column, Integer, Text, Sequence
-
+from sqlalchemy import Column, Integer, Text
 from db import Base
-
 
 class Employee(Base):
     __tablename__ = "employee"
