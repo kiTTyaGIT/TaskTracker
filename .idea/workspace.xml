@@ -4,16 +4,27 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="e3d6a237-c4a7-43e2-b467-397c520088d7" name="Changes" comment="Фронтенд рабочая версия без сообщений">
+    <list default="true" id="e3d6a237-c4a7-43e2-b467-397c520088d7" name="Changes" comment="Около рабочая версия">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/entity/employee_entity.py" beforeDir="false" afterPath="$PROJECT_DIR$/entity/employee_entity.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/entity/task_entity.py" beforeDir="false" afterPath="$PROJECT_DIR$/entity/task_entity.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend.py" beforeDir="false" afterPath="$PROJECT_DIR$/frontend.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository/project_repository.py" beforeDir="false" afterPath="$PROJECT_DIR$/repository/project_repository.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository/task_repository.py" beforeDir="false" afterPath="$PROJECT_DIR$/repository/task_repository.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/routers/employee_router.py" beforeDir="false" afterPath="$PROJECT_DIR$/routers/employee_router.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/schemas/employee_schema.py" beforeDir="false" afterPath="$PROJECT_DIR$/schemas/employee_schema.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/schemas/task_schema.py" beforeDir="false" afterPath="$PROJECT_DIR$/schemas/task_schema.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/db.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/db_connect/db.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/entity/employee_entity.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/entity/employee_entity.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/entity/employee_project_entity.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/entity/employee_project_entity.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/entity/project_entity.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/entity/project_entity.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/entity/task_entity.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/entity/task_entity.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend.py" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/frontend.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/main.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/repository/employee_project_repository.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/repository/employee_project_repository.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/repository/employee_repository.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/repository/employee_repository.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/repository/project_repository.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/repository/project_repository.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/repository/task_repository.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/repository/task_repository.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/routers/employee_project_router.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/routers/employee_project_router.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/routers/employee_router.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/routers/employee_router.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/routers/project_router.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/routers/project_router.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/routers/task_router.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/routers/task_router.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/schemas/employee_project_schema.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/schemas/employee_project_schema.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/schemas/employee_schema.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/schemas/employee_schema.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/schemas/project_schema.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/schemas/project_schema.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/schemas/task_schema.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/schemas/task_schema.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -23,6 +34,7 @@
   <component name="FileTemplateManagerImpl">
     <option name="RECENT_TEMPLATES">
       <list>
+        <option value="Dockerfile" />
         <option value="Python Script" />
       </list>
     </option>
@@ -55,21 +67,39 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
-    &quot;Python.frontend.executor&quot;: &quot;Run&quot;,
-    &quot;Python.main.executor&quot;: &quot;Run&quot;,
-    &quot;Python.streamlit.exe.executor&quot;: &quot;Run&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;main&quot;,
-    &quot;last_opened_file_path&quot;: &quot;C:/PycharmCourseProjects/TaskTracker&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "Docker.docker-compose.yaml.backend: Compose Deployment.executor": "Run",
+    "Docker.docker-compose.yaml.frontend: Compose Deployment.executor": "Run",
+    "Docker.docker-compose.yaml.postgres: Compose Deployment.executor": "Run",
+    "Docker.docker-compose.yaml: Compose Deployment.executor": "Run",
+    "ModuleVcsDetector.initialDetectionPerformed": "true",
+    "Python.frontend.executor": "Run",
+    "Python.main.executor": "Run",
+    "Python.streamlit.exe.executor": "Run",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "git-widget-placeholder": "main",
+    "last_opened_file_path": "C:/PycharmCourseProjects/TaskTracker/backend",
+    "settings.editor.selected.configurable": "com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable"
   }
-}</component>
-  <component name="RunManager" selected="Python.main">
+}]]></component>
+  <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="C:\PycharmCourseProjects\TaskTracker\backend" />
+      <recent name="C:\PycharmCourseProjects\TaskTracker\backend\schemas" />
+      <recent name="C:\PycharmCourseProjects\TaskTracker\backend\db_connect" />
+      <recent name="C:\PycharmCourseProjects\TaskTracker\backend\entity" />
+      <recent name="C:\PycharmCourseProjects\TaskTracker\backend\repository" />
+    </key>
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="C:\PycharmCourseProjects\TaskTracker\backend\db_connect" />
+      <recent name="C:\PycharmCourseProjects\TaskTracker\backend" />
+      <recent name="C:\PycharmCourseProjects\TaskTracker\frontend" />
+    </key>
+  </component>
+  <component name="RunManager" selected="Docker.docker-compose.yaml: Compose Deployment">
     <configuration name="main" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="TaskTracker" />
       <option name="ENV_FILES" value="" />
@@ -83,7 +113,7 @@
       <option name="IS_MODULE_SDK" value="true" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/main.py" />
+      <option name="SCRIPT_NAME" value="C:\PycharmCourseProjects\TaskTracker\backend\main.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -92,36 +122,71 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
-    <configuration name="streamlit.exe" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
-      <module name="TaskTracker" />
-      <option name="ENV_FILES" value="" />
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="PYTHONUNBUFFERED" value="1" />
-      </envs>
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="C:\PycharmCourseProjects\TaskTracker" />
-      <option name="IS_MODULE_SDK" value="true" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/.venv/Scripts/streamlit.exe" />
-      <option name="PARAMETERS" value="run frontend.py" />
-      <option name="SHOW_COMMAND_LINE" value="false" />
-      <option name="EMULATE_TERMINAL" value="false" />
-      <option name="MODULE_MODE" value="false" />
-      <option name="REDIRECT_INPUT" value="false" />
-      <option name="INPUT_FILE" value="" />
+    <configuration default="true" type="docker-deploy" factoryName="docker-compose.yml" temporary="true">
+      <deployment type="docker-compose.yml" />
+      <method v="2" />
+    </configuration>
+    <configuration name="docker-compose.yaml: Compose Deployment" type="docker-deploy" factoryName="docker-compose.yml" temporary="true" server-name="Docker">
+      <deployment type="docker-compose.yml">
+        <settings>
+          <option name="sourceFilePath" value="docker-compose.yaml" />
+        </settings>
+      </deployment>
+      <method v="2" />
+    </configuration>
+    <configuration name="docker-compose.yaml.backend: Compose Deployment" type="docker-deploy" factoryName="docker-compose.yml" temporary="true" server-name="Docker">
+      <deployment type="docker-compose.yml">
+        <settings>
+          <option name="services">
+            <list>
+              <option value="backend" />
+            </list>
+          </option>
+          <option name="sourceFilePath" value="docker-compose.yaml" />
+        </settings>
+      </deployment>
+      <method v="2" />
+    </configuration>
+    <configuration name="docker-compose.yaml.frontend: Compose Deployment" type="docker-deploy" factoryName="docker-compose.yml" temporary="true" server-name="Docker">
+      <deployment type="docker-compose.yml">
+        <settings>
+          <option name="services">
+            <list>
+              <option value="frontend" />
+            </list>
+          </option>
+          <option name="sourceFilePath" value="docker-compose.yaml" />
+        </settings>
+      </deployment>
+      <method v="2" />
+    </configuration>
+    <configuration name="docker-compose.yaml.postgres: Compose Deployment" type="docker-deploy" factoryName="docker-compose.yml" temporary="true" server-name="Docker">
+      <deployment type="docker-compose.yml">
+        <settings>
+          <option name="services">
+            <list>
+              <option value="postgres" />
+            </list>
+          </option>
+          <option name="sourceFilePath" value="docker-compose.yaml" />
+        </settings>
+      </deployment>
       <method v="2" />
     </configuration>
     <list>
+      <item itemvalue="Docker.docker-compose.yaml.backend: Compose Deployment" />
+      <item itemvalue="Docker.docker-compose.yaml.frontend: Compose Deployment" />
+      <item itemvalue="Docker.docker-compose.yaml.postgres: Compose Deployment" />
+      <item itemvalue="Docker.docker-compose.yaml: Compose Deployment" />
       <item itemvalue="Python.main" />
-      <item itemvalue="Python.streamlit.exe" />
     </list>
     <recent_temporary>
       <list>
+        <item itemvalue="Docker.docker-compose.yaml: Compose Deployment" />
+        <item itemvalue="Docker.docker-compose.yaml.frontend: Compose Deployment" />
+        <item itemvalue="Docker.docker-compose.yaml.backend: Compose Deployment" />
+        <item itemvalue="Docker.docker-compose.yaml.postgres: Compose Deployment" />
         <item itemvalue="Python.main" />
-        <item itemvalue="Python.streamlit.exe" />
       </list>
     </recent_temporary>
   </component>
@@ -213,7 +278,15 @@
       <option name="project" value="LOCAL" />
       <updated>1762430326046</updated>
     </task>
-    <option name="localTasksCounter" value="11" />
+    <task id="LOCAL-00011" summary="Около рабочая версия">
+      <option name="closed" value="true" />
+      <created>1763115772460</created>
+      <option name="number" value="00011" />
+      <option name="presentableId" value="LOCAL-00011" />
+      <option name="project" value="LOCAL" />
+      <updated>1763115772465</updated>
+    </task>
+    <option name="localTasksCounter" value="12" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -237,6 +310,7 @@
     <MESSAGE value="Добавление сетевых запросов для сущности task" />
     <MESSAGE value="Фронтенд (начало)" />
     <MESSAGE value="Фронтенд рабочая версия без сообщений" />
-    <option name="LAST_COMMIT_MESSAGE" value="Фронтенд рабочая версия без сообщений" />
+    <MESSAGE value="Около рабочая версия" />
+    <option name="LAST_COMMIT_MESSAGE" value="Около рабочая версия" />
   </component>
 </project>

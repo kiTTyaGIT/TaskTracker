@@ -1,6 +1,6 @@
 from sqlalchemy import Column, Integer, Text, TIMESTAMP
 
-from db import Base
+from db_connect.db import Base
 
 
 class Project(Base):

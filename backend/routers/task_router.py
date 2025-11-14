@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from typing import List
 
-from db import get_db
+from db_connect.db import get_db
 from repository.task_repository import TaskRepository
 from schemas.task_schema import Task, TaskCreate, TaskUpdate, TaskWithDetails
 
@@ -112,6 +112,20 @@ async def update_task_status(
     repo: TaskRepository = Depends(get_task_repository)
 ):
     task = repo.update_task_status(task_id, status)
+    if not task:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Task not found"
+        )
+    return task
+
+@router.patch("/{task_id}/priority", response_model=Task)
+async def update_task_priority(
+    task_id: int,
+    priority: str,
+    repo: TaskRepository = Depends(get_task_repository)
+):
+    task = repo.update_task_priority(task_id, priority)
     if not task:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,

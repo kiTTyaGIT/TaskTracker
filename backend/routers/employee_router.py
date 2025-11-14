@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from typing import List
 
-from db import get_db
+from db_connect.db import get_db
 from repository.employee_repository import EmployeeRepository
 from schemas.employee_schema import Employee, EmployeeCreate, EmployeeUpdate
 

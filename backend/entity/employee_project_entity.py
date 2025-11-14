@@ -1,5 +1,5 @@
 from sqlalchemy import Column, Integer
-from db import Base
+from db_connect.db import Base
 
 class EmployeeProject(Base):
     __tablename__ = "employee_project"

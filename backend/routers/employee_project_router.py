@@ -3,16 +3,14 @@ from sqlalchemy import text
 from sqlalchemy.orm import Session
 from typing import List
 
-from db import get_db
+from db_connect.db import get_db
 from entity.employee_project_entity import EmployeeProject
 from repository.employee_project_repository import EmployeeProjectRepository
 from schemas.employee_project_schema import (
     EmployeeProjectCreate,
     EmployeeProjectResponse,
     ProjectWithEmployees,
-    EmployeeWithProjects,
-    EmployeeShort,
-    ProjectShort
+    EmployeeWithProjects
 )
 
 router = APIRouter(prefix="/employee-projects", tags=["employee-projects"])
