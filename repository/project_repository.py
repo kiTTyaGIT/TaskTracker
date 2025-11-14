@@ -1,3 +1,4 @@
+from sqlalchemy import text
 from sqlalchemy.orm import Session
 
 from entity.project_entity import Project
@@ -26,6 +27,13 @@ class ProjectRepository:
         if not project:
             return False
 
+        self.db.execute(
+            text(""" 
+                DELETE FROM task t
+                WHERE t.project_id = :project_id
+            """),
+            {"project_id": project.id}
+        )
         self.db.delete(project)
         self.db.commit()
         return True

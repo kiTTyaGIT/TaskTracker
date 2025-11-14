@@ -5,7 +5,8 @@ class TaskBase(BaseModel):
     name: str
     description: Optional[str] = None
     needed_hours: Optional[int] = None
-    status: Optional[str] = "новая"
+    status: Optional[str] = "Новая"
+    priority: Optional[str] = "Низкий"
     employee_id: Optional[int] = None
     project_id: int
 
@@ -17,6 +18,7 @@ class TaskUpdate(BaseModel):
     description: Optional[str] = None
     needed_hours: Optional[int] = None
     status: Optional[str] = None
+    priority: Optional[str] = None
     employee_id: Optional[int] = None
     project_id: Optional[int] = None
 

@@ -9,6 +9,7 @@ class EmployeeBase(BaseModel):
     patronymic: Optional[str] = None
     phone_number: Optional[str] = None
     mail: Optional[str] = None
+    role: Optional[str] = None
 
 
 class EmployeeCreate(EmployeeBase):
@@ -21,6 +22,7 @@ class EmployeeUpdate(BaseModel):
     patronymic: Optional[str] = None
     phone_number: Optional[str] = None
     mail: Optional[str] = None
+    role: Optional[str] = None
 
 
 class Employee(EmployeeBase):

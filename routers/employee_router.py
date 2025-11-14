@@ -65,3 +65,17 @@ async def delete_employee(
             detail="Employee not found"
         )
     return None
+
+
+@router.patch("/employees/{employee_id}/role", status_code=status.HTTP_404_NOT_FOUND)
+async def update_role(
+    employee_id: int,
+    repo: EmployeeRepository = Depends(get_user_repository)
+):
+    result = repo.delete_employee_by_id(employee_id)
+    if not result:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Employee not found"
+        )
+    return None

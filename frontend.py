@@ -4,6 +4,7 @@ import pandas as pd
 import re
 from datetime import datetime
 
+# Конфигурация API и приложения
 API_BASE_URL = "http://localhost:8090"
 st.set_page_config(page_title="TaskTracker", layout="wide")
 
@@ -53,6 +54,272 @@ def make_request(endpoint, method="GET", data=None):
     except Exception as e:
         st.error(f"Ошибка подключения: {e}")
         return None
+
+
+def show_backlog_page():
+    """Главная страница - бэклог всех задач"""
+    st.header("📋 Бэклог задач")
+
+    # Получаем все данные
+    tasks = make_request("/tasks/")
+    employees = make_request("/employees/")
+    projects = make_request("/projects/")
+
+    if not tasks:
+        st.info("Задачи не найдены. Создайте первую задачу!")
+        return
+
+    # Обогащаем задачи данными о проектах и сотрудниках
+    enriched_tasks = []
+    for task in tasks:
+        # Находим проект
+        project = next((p for p in projects if p['id'] == task['project_id']), {}) if projects else {}
+        # Находим сотрудника
+        employee = next((e for e in employees if e['id'] == task['employee_id']), {}) if task.get(
+            'employee_id') and employees else None
+
+        enriched_task = {
+            'id': task['id'],
+            'name': task['name'],
+            'description': task.get('description', ''),
+            'needed_hours': task.get('needed_hours', 0),
+            'status': task.get('status', 'Новая'),
+            'priority': task.get('priority', 'Средний'),
+            'employee_name': f"{employee.get('name', '')} {employee.get('surname', '')}".strip() if employee else 'Не назначен',
+            'project_name': project.get('name', 'Неизвестно'),
+            'project_id': task['project_id'],
+            'employee_id': task.get('employee_id')
+        }
+        enriched_tasks.append(enriched_task)
+
+    # Создаем DataFrame для отображения
+    display_df = pd.DataFrame(enriched_tasks)
+    display_df = display_df[
+        ['id', 'name', 'description', 'needed_hours', 'status', 'priority', 'employee_name', 'project_name']]
+    display_df.columns = ['ID', 'Название', 'Описание', 'Часы', 'Статус', 'Приоритет', 'Исполнитель', 'Проект']
+
+    # Заменяем None значения
+    display_df['Описание'] = display_df['Описание'].fillna('Нет описания')
+    display_df['Исполнитель'] = display_df['Исполнитель'].fillna('Не назначен')
+
+    # Красивое отображение статусов
+    status_icons = {
+        'Новая': '⏳ Новая',
+        'В работе': '🔄 В работе',
+        'Выполнена': '✅ Выполнена'
+    }
+    display_df['Статус'] = display_df['Статус'].map(status_icons).fillna(display_df['Статус'])
+
+    # Красивое отображение приоритетов
+    priority_icons = {
+        'Низкий': '🟢 Низкий',
+        'Средний': '🟡 Средний',
+        'Высокий': '🔴 Высокий'
+    }
+    display_df['Приоритет'] = display_df['Приоритет'].map(priority_icons).fillna(display_df['Приоритет'])
+
+    # Фильтрация данных
+    st.subheader("🔍 Фильтры задач")
+
+    col1, col2, col3 = st.columns(3)
+
+    with col1:
+        # Фильтр по статусу
+        status_filter = st.selectbox(
+            "Статус",
+            ["Все", "Новая", "В работе", "Выполнена"],
+            key="status_filter"
+        )
+
+    with col2:
+        # Фильтр по приоритету
+        priority_filter = st.selectbox(
+            "Приоритет",
+            ["Все", "Низкий", "Средний", "Высокий"],
+            key="priority_filter"
+        )
+
+    with col3:
+        # Фильтр по исполнителю
+        employee_options = ["Все"]
+        if employees:
+            employee_options.extend([f"{e['id']} - {e['name']} {e['surname']}" for e in employees])
+
+        employee_filter = st.selectbox("Исполнитель", employee_options, key="employee_filter")
+
+    # Применяем фильтры
+    filtered_df = display_df.copy()
+
+    if status_filter != "Все":
+        # Убираем иконки для фильтрации
+        status_map = {v: k for k, v in status_icons.items()}
+        filtered_df['status_clean'] = filtered_df['Статус'].map(status_map).fillna(filtered_df['Статус'])
+        filtered_df = filtered_df[filtered_df['status_clean'] == status_filter]
+
+    if priority_filter != "Все":
+        # Убираем иконки для фильтрации
+        priority_map = {v: k for k, v in priority_icons.items()}
+        filtered_df['priority_clean'] = filtered_df['Приоритет'].map(priority_map).fillna(filtered_df['Приоритет'])
+        filtered_df = filtered_df[filtered_df['priority_clean'] == priority_filter]
+
+    if employee_filter != "Все":
+        employee_name = employee_filter.split(" - ")[1] if " - " in employee_filter else employee_filter
+        filtered_df = filtered_df[filtered_df['Исполнитель'] == employee_name]
+
+    # Удаляем временные колонки
+    if 'status_clean' in filtered_df.columns:
+        filtered_df = filtered_df.drop('status_clean', axis=1)
+    if 'priority_clean' in filtered_df.columns:
+        filtered_df = filtered_df.drop('priority_clean', axis=1)
+
+    # Отображаем отфильтрованную таблицу
+    st.dataframe(filtered_df, use_container_width=True)
+
+    # Статистика
+    st.subheader("📊 Статистика задач")
+    col1, col2, col3, col4 = st.columns(4)
+
+    with col1:
+        total_tasks = len(filtered_df)
+        st.metric("Всего задач", total_tasks)
+
+    with col2:
+        # Считаем задачи "В работе" по чистым статусам
+        in_progress_count = len([t for t in enriched_tasks if t['status'] == 'В работе' and
+                                 (status_filter == "Все" or status_filter == "В работе") and
+                                 (priority_filter == "Все" or priority_filter == t['priority']) and
+                                 (employee_filter == "Все" or f"{t['employee_name']}" == employee_filter.split(" - ")[
+                                     1] if " - " in employee_filter else employee_filter)])
+        st.metric("В работе", in_progress_count)
+
+    with col3:
+        # Считаем выполненные задачи по чистым статусам
+        completed_count = len([t for t in enriched_tasks if t['status'] == 'Выполнена' and
+                               (status_filter == "Все" or status_filter == "Выполнена") and
+                               (priority_filter == "Все" or priority_filter == t['priority']) and
+                               (employee_filter == "Все" or f"{t['employee_name']}" == employee_filter.split(" - ")[
+                                   1] if " - " in employee_filter else employee_filter)])
+        st.metric("Выполнено", completed_count)
+
+    with col4:
+        # Считаем задачи высокого приоритета по чистым приоритетам
+        high_priority_count = len([t for t in enriched_tasks if t['priority'] == 'Высокий' and
+                                   (priority_filter == "Все" or priority_filter == "Высокий") and
+                                   (status_filter == "Все" or status_filter == t['status']) and
+                                   (employee_filter == "Все" or f"{t['employee_name']}" == employee_filter.split(" - ")[
+                                       1] if " - " in employee_filter else employee_filter)])
+        st.metric("Высокий приоритет", high_priority_count)
+
+
+def show_users_page():
+    """Страница управления пользователями и ролями"""
+    st.header("👥 Сотрудники и роли")
+
+    # Создание нового сотрудника
+    with st.expander("➕ Добавить сотрудника"):
+        with st.form("create_employee"):
+            col1, col2 = st.columns(2)
+
+            with col1:
+                name = st.text_input("Имя*")
+                surname = st.text_input("Фамилия*")
+                patronymic = st.text_input("Отчество")
+                role = st.selectbox("Роль*", ["Менеджер", "Разработчик", "Тестировщик", "Аналитик"])
+
+            with col2:
+                phone_number = st.text_input("Телефон", placeholder="+7 XXX XXX-XX-XX")
+                mail = st.text_input("Email*", placeholder="example@mail.ru")
+
+            if st.form_submit_button("Добавить сотрудника"):
+                # Валидация обязательных полей
+                if not name.replace(" ", "") or not surname.replace(" ", "") or not mail:
+                    st.error("Имя, фамилия и email обязательны для заполнения!")
+                # Валидация телефона, если указан
+                elif phone_number and not validate_phone(phone_number):
+                    st.error("Неверный формат телефона! Используйте российский формат.")
+                # Валидация email
+                elif not validate_email(mail):
+                    st.error("Неверный формат email!")
+                else:
+                    employee_data = {
+                        "name": name,
+                        "surname": surname,
+                        "patronymic": patronymic,
+                        "phone_number": phone_number,
+                        "mail": mail,
+                        "role": role
+                    }
+                    result = make_request("/employees/", "POST", employee_data)
+                    if result:
+                        st.success("Сотрудник успешно добавлен!")
+                        st.rerun()
+
+    # Список сотрудников с ролями
+    st.subheader("📋 Список пользователей")
+    employees = make_request("/employees/")
+
+    if employees:
+        employees_df = pd.DataFrame(employees)
+        st.dataframe(employees_df, use_container_width=True)
+
+        # Редактирование и удаление сотрудников
+        st.subheader("⚙️ Управление сотрудниками")
+        col1, col2 = st.columns(2)
+
+        with col1:
+            st.write("**✏️ Редактировать сотрудника**")
+            employee_ids = [f"{e['id']} - {e['name']} {e['surname']}" for e in employees]
+            selected_employee = st.selectbox("Выберите сотрудника", employee_ids, key="edit_employee")
+
+            if selected_employee:
+                employee_id = int(selected_employee.split(" - ")[0])
+                employee = next((e for e in employees if e["id"] == employee_id), None)
+                if employee:
+                    with st.form("edit_employee_form"):
+                        new_name = st.text_input("Имя*", value=employee["name"])
+                        new_surname = st.text_input("Фамилия*", value=employee["surname"])
+                        new_patronymic = st.text_input("Отчество", value=employee["patronymic"] or "")
+                        new_phone = st.text_input("Телефон", value=employee["phone_number"] or "",
+                                                  placeholder="+7 XXX XXX-XX-XX")
+                        new_mail = st.text_input("Email", value=employee["mail"] or "",
+                                                 placeholder="example@mail.ru")
+
+                        new_role = st.selectbox("Новая роль",
+                                                ["Менеджер", "Разработчик", "Тестировщик", "Аналитик"],
+                                                index=["Менеджер", "Разработчик", "Тестировщик", "Аналитик"].index(
+                                                    employee.get("role", "Разработчик")))
+
+                        if st.form_submit_button("Обновить сотрудника"):
+                            if not new_name or not new_surname:
+                                st.error("Имя и фамилия обязательны для заполнения!")
+                            elif new_phone and not validate_phone(new_phone):
+                                st.error("Неверный формат телефона! Используйте российский формат.")
+                            elif new_mail and not validate_email(new_mail):
+                                st.error("Неверный формат email!")
+                            else:
+                                update_data = {
+                                    "name": new_name,
+                                    "surname": new_surname,
+                                    "patronymic": new_patronymic,
+                                    "phone_number": new_phone,
+                                    "mail": new_mail,
+                                    "role": new_role
+                                }
+                                result = make_request(f"/employees/{employee_id}", "PUT", update_data)
+                                if result:
+                                    st.success("Данные сотрудника обновлены!")
+                                    st.rerun()
+
+        with col2:
+            st.write("**🗑️ Удалить сотрудника**")
+            delete_employee = st.selectbox("Выберите сотрудника для удаления", employee_ids, key="delete_employee")
+            if st.button("Удалить сотрудника", type="secondary"):
+                employee_id = int(delete_employee.split(" - ")[0])
+                if make_request(f"/employees/{employee_id}", "DELETE"):
+                    st.success("Сотрудник удален!")
+                    st.rerun()
+    else:
+        st.info("Сотрудники не найдены. Добавьте первого сотрудника!")
 
 
 def show_projects_page():
@@ -146,104 +413,6 @@ def show_projects_page():
         st.info("Проекты не найдены. Создайте первый проект!")
 
 
-def show_employees_page():
-    """Страница управления сотрудниками"""
-    st.header("👥 Управление сотрудниками")
-
-    # Создание нового сотрудника
-    with st.expander("➕ Добавить сотрудника"):
-        with st.form("create_employee"):
-            name = st.text_input("Имя*")
-            surname = st.text_input("Фамилия*")
-            patronymic = st.text_input("Отчество")
-            phone_number = st.text_input("Телефон", placeholder="+7 XXX XXX-XX-XX")
-            mail = st.text_input("Email", placeholder="example@mail.ru")
-
-            if st.form_submit_button("Добавить сотрудника"):
-                # Валидация обязательных полей
-                if not name or not surname:
-                    st.error("Имя и фамилия обязательны для заполнения!")
-                # Валидация телефона, если указан
-                elif phone_number and not validate_phone(phone_number):
-                    st.error("Неверный формат телефона! Используйте российский формат.")
-                # Валидация email, если указан
-                elif mail and not validate_email(mail):
-                    st.error("Неверный формат email!")
-                else:
-                    employee_data = {
-                        "name": name,
-                        "surname": surname,
-                        "patronymic": patronymic,
-                        "phone_number": phone_number,
-                        "mail": mail
-                    }
-                    result = make_request("/employees/", "POST", employee_data)
-                    if result:
-                        st.success("Сотрудник успешно добавлен!")
-                        st.rerun()
-
-    # Список сотрудников
-    st.subheader("📋 Список сотрудников")
-    employees = make_request("/employees/")
-
-    if employees:
-        employees_df = pd.DataFrame(employees)
-        st.dataframe(employees_df, use_container_width=True)
-
-        # Редактирование и удаление сотрудников
-        st.subheader("⚙️ Управление сотрудниками")
-        col1, col2 = st.columns(2)
-
-        with col1:
-            st.write("**✏️ Редактировать сотрудника**")
-            employee_ids = [f"{e['id']} - {e['name']} {e['surname']}" for e in employees]
-            selected_employee = st.selectbox("Выберите сотрудника", employee_ids, key="edit_employee")
-
-            if selected_employee:
-                employee_id = int(selected_employee.split(" - ")[0])
-                employee = next((e for e in employees if e["id"] == employee_id), None)
-                if employee:
-                    with st.form("edit_employee_form"):
-                        new_name = st.text_input("Имя*", value=employee["name"])
-                        new_surname = st.text_input("Фамилия*", value=employee["surname"])
-                        new_patronymic = st.text_input("Отчество", value=employee["patronymic"] or "")
-                        new_phone = st.text_input("Телефон", value=employee["phone_number"] or "",
-                                                  placeholder="+7 XXX XXX-XX-XX")
-                        new_mail = st.text_input("Email", value=employee["mail"] or "",
-                                                 placeholder="example@mail.ru")
-
-                        if st.form_submit_button("Обновить сотрудника"):
-                            if not new_name or not new_surname:
-                                st.error("Имя и фамилия обязательны для заполнения!")
-                            elif new_phone and not validate_phone(new_phone):
-                                st.error("Неверный формат телефона! Используйте российский формат.")
-                            elif new_mail and not validate_email(new_mail):
-                                st.error("Неверный формат email!")
-                            else:
-                                update_data = {
-                                    "name": new_name,
-                                    "surname": new_surname,
-                                    "patronymic": new_patronymic,
-                                    "phone_number": new_phone,
-                                    "mail": new_mail
-                                }
-                                result = make_request(f"/employees/{employee_id}", "PUT", update_data)
-                                if result:
-                                    st.success("Данные сотрудника обновлены!")
-                                    st.rerun()
-
-        with col2:
-            st.write("**🗑️ Удалить сотрудника**")
-            delete_employee = st.selectbox("Выберите сотрудника для удаления", employee_ids, key="delete_employee")
-            if st.button("Удалить сотрудника", type="secondary"):
-                employee_id = int(delete_employee.split(" - ")[0])
-                if make_request(f"/employees/{employee_id}", "DELETE"):
-                    st.success("Сотрудник удален!")
-                    st.rerun()
-    else:
-        st.info("Сотрудники не найдены. Добавьте первого сотрудника!")
-
-
 def show_assignments_page():
     """Страница назначений сотрудников на проекты"""
     st.header("🔗 Назначения сотрудников на проекты")
@@ -253,7 +422,11 @@ def show_assignments_page():
     projects = make_request("/projects/")
 
     if not employees or not projects:
-        st.error("Не удалось загрузить данные сотрудников или проектов")
+        if not employees:
+            st.info(
+                "Нельзя назначить сотрудника на проект при отсутствии сотрудников. Добавьте сотрудника для назначения!")
+        if not projects:
+            st.info("Нельзя назначить сотрудника на проект при отсутствии проектов. Добавьте проект для назначения!")
         return
 
     col1, col2 = st.columns(2)
@@ -344,89 +517,6 @@ def show_assignments_page():
                 st.info("У этого сотрудника нет проектов")
 
 
-def show_overview_page():
-    """Страница обзора системы"""
-    st.header("📈 Обзор системы")
-
-    # Статистика
-    employees = make_request("/employees/")
-    projects = make_request("/projects/")
-    assignments = make_request("/employee-projects/")
-    tasks = make_request("/tasks/")
-
-    if employees and projects:
-        col1, col2, col3, col4 = st.columns(4)
-
-        with col1:
-            st.metric("👥 Всего сотрудников", len(employees))
-        with col2:
-            st.metric("📋 Всего проектов", len(projects))
-        with col3:
-            st.metric("🔗 Всего назначений", len(assignments) if assignments else 0)
-        with col4:
-            st.metric("✅ Всего задач", len(tasks) if tasks else 0)
-
-    # Статистика по задачам
-    if tasks:
-        st.subheader("📊 Статистика задач")
-
-        col1, col2, col3 = st.columns(3)
-
-        # Подсчет задач по статусам
-        status_counts = {}
-        for task in tasks:
-            status = task.get('status', 'unknown')
-            status_counts[status] = status_counts.get(status, 0) + 1
-
-        with col1:
-            pending = status_counts.get('pending', 0)
-            st.metric("⏳ Ожидает", pending)
-
-        with col2:
-            in_progress = status_counts.get('in_progress', 0)
-            st.metric("🔄 В работе", in_progress)
-
-        with col3:
-            completed = status_counts.get('completed', 0)
-            st.metric("✅ Завершено", completed)
-
-    # Визуализация
-    col1, col2 = st.columns(2)
-
-    with col1:
-        st.subheader("👥 Сотрудники по проектам")
-        if projects and assignments:
-            project_assignments = {}
-            for project in projects:
-                project_employees = make_request(f"/employee-projects/projects/{project['id']}/employees")
-                if project_employees and project_employees.get("employees"):
-                    project_assignments[project['name']] = len(project_employees['employees'])
-
-            if project_assignments:
-                chart_data = pd.DataFrame({
-                    'Проекты': list(project_assignments.keys()),
-                    'Количество сотрудников': list(project_assignments.values())
-                })
-                st.bar_chart(chart_data.set_index('Проекты'))
-            else:
-                st.info("Нет данных для отображения")
-
-    with col2:
-        st.subheader("📝 Последние задачи")
-        tasks_with_details = make_request("/tasks/with-details")
-        if tasks_with_details:
-            recent_tasks = sorted(tasks_with_details, key=lambda x: x.get('id', 0), reverse=True)[:5]
-            for task in recent_tasks:
-                status_icon = "⏳" if task["status"] == "pending" else "🔄" if task["status"] == "in_progress" else "✅"
-                with st.expander(f"{status_icon} {task['name']}"):
-                    st.write(f"**Проект:** {task.get('project_name', 'Неизвестно')}")
-                    st.write(f"**Исполнитель:** {task.get('employee_name', 'Не назначен')}")
-                    st.write(f"**Часы:** {task.get('needed_hours', 'Не указано')}")
-                    st.write(f"**Статус:** {task['status']}")
-        else:
-            st.info("Задачи не найдены")
-
-
 def show_tasks_page():
     """Страница управления задачами"""
     st.header("✅ Управление задачами")
@@ -434,10 +524,11 @@ def show_tasks_page():
     # Получаем проекты и сотрудников для проверки
     projects = make_request("/projects/")
     employees = make_request("/employees/")
+    tasks = make_request("/tasks/")
 
     # Проверяем, есть ли проекты для создания задач
     if not projects:
-        st.error("❌ Нельзя создавать задачи без проектов. Сначала создайте проект во вкладке 'Проекты'.")
+        st.info("Нельзя создавать задачи без проектов. Сначала создайте проект во вкладке 'Проекты'.")
         return
 
     # Создание новой задачи
@@ -453,29 +544,27 @@ def show_tasks_page():
                     name = st.text_input("Название задачи*")
                     selected_project = st.selectbox("Проект*", project_options)
                     needed_hours = st.number_input("Необходимо часов", min_value=0, value=0)
+                    priority = st.selectbox("Приоритет", ["Низкий", "Средний", "Высокий"])
 
                 with col2:
                     description = st.text_area("Описание")
                     selected_employee = st.selectbox("Исполнитель", employee_options)
-                    # Статусы на русском языке
-                    status = st.selectbox("Статус",
-                                          ["pending", "in_progress", "completed"],
-                                          format_func=lambda x: {
-                                              "pending": "⏳ Ожидает",
-                                              "in_progress": "🔄 В работе",
-                                              "completed": "✅ Завершена"
-                                          }[x])
+                    status = st.selectbox("Статус", ["Новая", "В работе", "Выполнена"])
 
                 if st.form_submit_button("Создать задачу"):
                     if not name:
                         st.error("Название задачи обязательно!")
                     else:
+                        # Правильно извлекаем ID проекта
+                        project_id = int(selected_project.split(" - ")[0])
+
                         task_data = {
                             "name": name,
                             "description": description,
                             "needed_hours": needed_hours,
                             "status": status,
-                            "project_id": int(selected_project.split(" - ")[0]),
+                            "priority": priority,
+                            "project_id": project_id,
                             "employee_id": int(
                                 selected_employee.split(" - ")[0]) if selected_employee != "Не назначено" else None
                         }
@@ -486,31 +575,58 @@ def show_tasks_page():
             else:
                 st.error("Не удалось загрузить данные проектов и сотрудников")
 
-    # Просмотр задач с деталями
+    # Просмотр задач
     st.subheader("📋 Список задач")
 
-    tasks_with_details = make_request("/tasks/with-details")
+    if tasks:
+        # Обогащаем задачи данными о проектах и сотрудниках
+        enriched_tasks = []
+        for task in tasks:
+            # Находим проект
+            project = next((p for p in projects if p['id'] == task['project_id']), {})
+            # Находим сотрудника
+            employee = next((e for e in employees if e['id'] == task['employee_id']), {}) if task.get(
+                'employee_id') else None
 
-    if tasks_with_details:
+            enriched_task = {
+                'id': task['id'],
+                'name': task['name'],
+                'description': task.get('description', ''),
+                'needed_hours': task.get('needed_hours', 0),
+                'status': task.get('status', 'Новая'),
+                'priority': task.get('priority', 'Средний'),
+                'employee_name': f"{employee.get('name', '')} {employee.get('surname', '')}".strip() if employee else 'Не назначен',
+                'project_name': project.get('name', 'Неизвестно'),
+                'project_id': task['project_id'],
+                'employee_id': task.get('employee_id')
+            }
+            enriched_tasks.append(enriched_task)
+
         # Создаем DataFrame для отображения
-        tasks_df = pd.DataFrame(tasks_with_details)
-
-        # Переименовываем колонки для лучшего отображения
-        display_df = tasks_df[
-            ['id', 'name', 'description', 'needed_hours', 'status', 'employee_name', 'project_name']].copy()
-        display_df.columns = ['ID', 'Название', 'Описание', 'Часы', 'Статус', 'Исполнитель', 'Проект']
+        display_df = pd.DataFrame(enriched_tasks)
+        display_df = display_df[
+            ['id', 'name', 'description', 'needed_hours', 'status', 'priority', 'employee_name', 'project_name']]
+        display_df.columns = ['ID', 'Название', 'Описание', 'Часы', 'Статус', 'Приоритет', 'Исполнитель', 'Проект']
 
         # Заменяем None значения
-        display_df['Исполнитель'] = display_df['Исполнитель'].fillna('Не назначен')
         display_df['Описание'] = display_df['Описание'].fillna('Нет описания')
+        display_df['Исполнитель'] = display_df['Исполнитель'].fillna('Не назначен')
 
-        # Красивое отображение статусов на русском
+        # Красивое отображение статусов
         status_icons = {
-            'pending': '⏳ Ожидает',
-            'in_progress': '🔄 В работе',
-            'completed': '✅ Завершена'
+            'Новая': '⏳ Новая',
+            'В работе': '🔄 В работе',
+            'Выполнена': '✅ Выполнена'
         }
         display_df['Статус'] = display_df['Статус'].map(status_icons).fillna(display_df['Статус'])
+
+        # Красивое отображение приоритетов
+        priority_icons = {
+            'Низкий': '🟢 Низкий',
+            'Средний': '🟡 Средний',
+            'Высокий': '🔴 Высокий'
+        }
+        display_df['Приоритет'] = display_df['Приоритет'].map(priority_icons).fillna(display_df['Приоритет'])
 
         st.dataframe(display_df, use_container_width=True)
 
@@ -521,12 +637,11 @@ def show_tasks_page():
 
         with col1:
             st.write("**👤 Назначить исполнителя**")
-            task_options = [f"{t['id']} - {t['name']}" for t in tasks_with_details]
+            task_options = [f"{t['id']} - {t['name']}" for t in enriched_tasks]
             selected_task_assign = st.selectbox("Выберите задачу", task_options, key="assign_task")
 
             if selected_task_assign:
-                employee_options = ["Снять назначение"] + [f"{e['id']} - {e['name']} {e['surname']}" for e in
-                                                           make_request("/employees/") or []]
+                employee_options = ["Снять назначение"] + [f"{e['id']} - {e['name']} {e['surname']}" for e in employees]
                 selected_employee_assign = st.selectbox("Выберите исполнителя", employee_options, key="assign_employee")
 
                 if st.button("Назначить"):
@@ -548,46 +663,59 @@ def show_tasks_page():
             selected_task_status = st.selectbox("Выберите задачу", task_options, key="status_task")
 
             if selected_task_status:
-                new_status = st.selectbox("Новый статус",
-                                          ["pending", "in_progress", "completed"],
-                                          format_func=lambda x: {
-                                              "pending": "⏳ Ожидает",
-                                              "in_progress": "🔄 В работе",
-                                              "completed": "✅ Завершена"
-                                          }[x])
+                new_status = st.selectbox("Новый статус", ["Новая", "В работе", "Выполнена"])
 
                 if st.button("Обновить статус"):
                     task_id = int(selected_task_status.split(" - ")[0])
-                    # Исправленная строка - правильное форматирование URL
                     result = make_request(f"/tasks/{task_id}/status?status={new_status}", "PATCH")
                     if result:
                         st.success("Статус обновлен!")
                         st.rerun()
 
         with col3:
-            st.write("**✏️ Редактировать задачу**")
-            selected_task_edit = st.selectbox("Выберите задачу", task_options, key="edit_task")
+            st.write("**🎯 Изменить приоритет**")
+            selected_task_priority = st.selectbox("Выберите задачу", task_options, key="priority_task")
 
-            if selected_task_edit:
-                task_id = int(selected_task_edit.split(" - ")[0])
-                task = next((t for t in tasks_with_details if t['id'] == task_id), None)
+            if selected_task_priority:
+                new_priority = st.selectbox("Новый приоритет", ["Низкий", "Средний", "Высокий"])
 
-                if task:
-                    with st.form("edit_task_form"):
+                if st.button("Обновить приоритет"):
+                    task_id = int(selected_task_priority.split(" - ")[0])
+                    result = make_request(f"/tasks/{task_id}/priority?priority={new_priority}", "PATCH")
+                    if result:
+                        st.success("Приоритет обновлен!")
+                        st.rerun()
+
+        # Редактирование задачи
+        st.write("---")
+        st.write("**✏️ Редактировать задачу**")
+        selected_task_edit = st.selectbox("Выберите задачу", task_options, key="edit_task")
+
+        if selected_task_edit:
+            task_id = int(selected_task_edit.split(" - ")[0])
+            task = next((t for t in enriched_tasks if t['id'] == task_id), None)
+
+            if task:
+                with st.form("edit_task_form"):
+                    col1, col2 = st.columns(2)
+
+                    with col1:
                         new_name = st.text_input("Название", value=task["name"])
                         new_description = st.text_area("Описание", value=task["description"] or "")
+
+                    with col2:
                         new_hours = st.number_input("Необходимо часов", value=task["needed_hours"] or 0, min_value=0)
 
-                        if st.form_submit_button("Обновить задачу"):
-                            update_data = {
-                                "name": new_name,
-                                "description": new_description,
-                                "needed_hours": new_hours
-                            }
-                            result = make_request(f"/tasks/{task_id}", "PUT", update_data)
-                            if result:
-                                st.success("Задача обновлена!")
-                                st.rerun()
+                    if st.form_submit_button("Обновить задачу"):
+                        update_data = {
+                            "name": new_name,
+                            "description": new_description,
+                            "needed_hours": new_hours
+                        }
+                        result = make_request(f"/tasks/{task_id}", "PUT", update_data)
+                        if result:
+                            st.success("Задача обновлена!")
+                            st.rerun()
 
         # Удаление задачи
         st.write("---")
@@ -614,7 +742,6 @@ def show_tasks_page():
 
     with col1:
         st.write("**📋 Задачи по проекту**")
-        projects = make_request("/projects/")
         if projects:
             selected_project_filter = st.selectbox(
                 "Выберите проект",
@@ -629,15 +756,13 @@ def show_tasks_page():
                 if project_tasks:
                     st.write(f"Задачи проекта ({len(project_tasks)}):")
                     for task in project_tasks:
-                        status_icon = "⏳" if task["status"] == "pending" else "🔄" if task[
-                                                                                         "status"] == "in_progress" else "✅"
+                        status_icon = "⏳" if task["status"] == "Новая" else "🔄" if task["status"] == "В работе" else "✅"
                         st.write(f"- {status_icon} {task['name']} (Часы: {task['needed_hours'] or 'не указано'})")
                 else:
                     st.info("В этом проекте нет задач")
 
     with col2:
         st.write("**👤 Задачи по исполнителю**")
-        employees = make_request("/employees/")
         if employees:
             selected_employee_filter = st.selectbox(
                 "Выберите исполнителя",
@@ -652,8 +777,7 @@ def show_tasks_page():
                 if employee_tasks:
                     st.write(f"Задачи сотрудника ({len(employee_tasks)}):")
                     for task in employee_tasks:
-                        status_icon = "⏳" if task["status"] == "pending" else "🔄" if task[
-                                                                                         "status"] == "in_progress" else "✅"
+                        status_icon = "⏳" if task["status"] == "Новая" else "🔄" if task["status"] == "В работе" else "✅"
                         st.write(f"- {status_icon} {task['name']} (Статус: {task['status']})")
                 else:
                     st.info("У этого сотрудника нет задач")
@@ -661,29 +785,29 @@ def show_tasks_page():
 
 def main():
     """Главная функция приложения"""
-    st.title("🚀 TaskTracker - Управление проектами, сотрудниками и задачами")
+    st.title("TaskTracker - Управление проектами, сотрудниками и задачами")
 
     # Боковая панель навигации
     st.sidebar.title("🧭 Навигация")
     page = st.sidebar.radio("Выберите раздел:", [
-        "📋 Проекты",
+        "📋 Бэклог задач",
         "👥 Сотрудники",
+        "🗂️ Проекты",
         "🔗 Назначения",
         "✅ Задачи",
-        "📈 Обзор"
     ])
 
     # Маршрутизация по страницам
-    if page == "📋 Проекты":
-        show_projects_page()
+    if page == "📋 Бэклог задач":
+        show_backlog_page()
     elif page == "👥 Сотрудники":
-        show_employees_page()
+        show_users_page()
+    elif page == "🗂️ Проекты":
+        show_projects_page()
     elif page == "🔗 Назначения":
         show_assignments_page()
     elif page == "✅ Задачи":
         show_tasks_page()
-    elif page == "📈 Обзор":
-        show_overview_page()
 
 
 if __name__ == "__main__":

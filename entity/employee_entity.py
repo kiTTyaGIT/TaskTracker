@@ -10,6 +10,7 @@ class Employee(Base):
     patronymic = Column(Text)
     phone_number = Column(Text)
     mail = Column(Text)
+    role = Column(Text)
 
     def __repr__(self):
-        return f"<Employee(id={self.id}, name='{self.name}')>"
+        return f"<Employee(id={self.id}, name='{self.name}', role='{self.role}')>"

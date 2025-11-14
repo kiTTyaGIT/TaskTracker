@@ -154,3 +154,14 @@ class TaskRepository:
         self.db.commit()
         self.db.refresh(task)
         return task
+
+    def update_task_priority(self, task_id: int, priority: str) -> Task:
+        """Обновление приоритета задачи"""
+        task = self.get_task_by_id(task_id)
+        if not task:
+            return None
+
+        task.priority = priority
+        self.db.commit()
+        self.db.refresh(task)
+        return task
