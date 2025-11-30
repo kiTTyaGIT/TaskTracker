@@ -2,7 +2,8 @@ version: '3.8'
 
 services:
   postgres:
-    image: postgres:17
+    build: postgres
+    image: custom-postgres:17
     environment:
       POSTGRES_DB: task_tracker_db
       POSTGRES_USER: postgres
@@ -11,7 +12,6 @@ services:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
-      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
     networks:
       - tasktracker-network
 

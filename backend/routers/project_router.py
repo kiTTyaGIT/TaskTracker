@@ -37,6 +37,12 @@ async def create_project(
     project_data: ProjectCreate,
     repo: ProjectRepository = Depends(get_project_repository)
 ):
+    project = repo.get_project_by_name(project_data.name)
+    if project:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="Проект с таким названием уже существует!"
+        )
     return repo.create_project(project_data.model_dump())
 
 @router.put("/{project_name}", response_model=Project)

@@ -51,7 +51,7 @@ async def remove_employee_from_project(
     if not success:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail="Relationship not found"
+            detail="Связь не найдена!"
         )
 
 
@@ -69,7 +69,7 @@ async def get_project_employees(
     if not project_exists:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail="Project not found"
+            detail="Проект не найден!"
         )
 
     # Получаем проект
@@ -102,7 +102,7 @@ async def get_employee_projects(
     if not employee_exists:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail="Employee not found"
+            detail="Сотрудник не найден!"
         )
 
     # Получаем сотрудника
