@@ -43,12 +43,13 @@ git https://github.com/kiTTyaGIT/TaskTracker.git
 ```bash
 docker compose up --build -d
 ```
-3. После запуска фронтенд доступен по адресу: http://localhost:8051, бэкенд доступен по адресу http://localhost:8090
+3. После запуска фронтенд доступен по адресу: http://localhost:8051
+                 бэкенд доступен по адресу: http://localhost:8090
 4. Остановка приложения 
 ```bash
 docker compose down
 ```
-6. Для полной очистки с удалением всей сохраненной информации:
+5. Для полной очистки с удалением всей сохраненной информации:
 ```bash
 docker compose down -v
 ```
