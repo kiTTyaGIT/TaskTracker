@@ -4,17 +4,9 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="e3d6a237-c4a7-43e2-b467-397c520088d7" name="Changes" comment="Около рабочая версия">
+    <list default="true" id="e3d6a237-c4a7-43e2-b467-397c520088d7" name="Changes" comment="Фиксы">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/Dockerfile" beforeDir="false" afterPath="$PROJECT_DIR$/backend/Dockerfile" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/requirements.txt" beforeDir="false" afterPath="$PROJECT_DIR$/backend/requirements.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/routers/employee_project_router.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/routers/employee_project_router.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/routers/project_router.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/routers/project_router.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/docker-compose.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/docker-compose.yaml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/Dockerfile" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/Dockerfile" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/frontend.py" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/frontend.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/requirements.txt" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/requirements.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/init.sql" beforeDir="false" afterPath="$PROJECT_DIR$/postgres/init.sql" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -171,8 +163,8 @@
     <recent_temporary>
       <list>
         <item itemvalue="Docker.docker-compose.yaml: Compose Deployment" />
-        <item itemvalue="Docker.docker-compose.yaml.frontend: Compose Deployment" />
         <item itemvalue="Docker.docker-compose.yaml.postgres: Compose Deployment" />
+        <item itemvalue="Docker.docker-compose.yaml.frontend: Compose Deployment" />
         <item itemvalue="Docker.postgres/Dockerfile" />
         <item itemvalue="Docker.docker-compose-for-reciever.yaml.postgres: Compose Deployment" />
       </list>
@@ -274,7 +266,15 @@
       <option name="project" value="LOCAL" />
       <updated>1763115772465</updated>
     </task>
-    <option name="localTasksCounter" value="12" />
+    <task id="LOCAL-00012" summary="Фиксы">
+      <option name="closed" value="true" />
+      <created>1764529305207</created>
+      <option name="number" value="00012" />
+      <option name="presentableId" value="LOCAL-00012" />
+      <option name="project" value="LOCAL" />
+      <updated>1764529305207</updated>
+    </task>
+    <option name="localTasksCounter" value="13" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -299,7 +299,8 @@
     <MESSAGE value="Фронтенд (начало)" />
     <MESSAGE value="Фронтенд рабочая версия без сообщений" />
     <MESSAGE value="Около рабочая версия" />
-    <option name="LAST_COMMIT_MESSAGE" value="Около рабочая версия" />
+    <MESSAGE value="Фиксы" />
+    <option name="LAST_COMMIT_MESSAGE" value="Фиксы" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
