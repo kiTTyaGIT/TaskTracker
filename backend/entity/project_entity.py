@@ -1,3 +1,4 @@
+# Модель проекта для системы управления задачами.
 from sqlalchemy import Column, Integer, Text, TIMESTAMP
 
 from db_connect.db import Base
@@ -11,6 +12,6 @@ class Project(Base):
     description = Column(Text)
     start_date = Column(TIMESTAMP(timezone=True))
     finish_date = Column(TIMESTAMP(timezone=True))
-
+# Метод для строкового представления объекта
     def __repr__(self):
         return f"<Project(id={self.id}, name='{self.name}')>"

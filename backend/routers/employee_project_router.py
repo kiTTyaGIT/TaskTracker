@@ -13,19 +13,23 @@ from schemas.employee_project_schema import (
     EmployeeWithProjects
 )
 
+from handler.employee_project_handler import EmployeeProjectHandler
+from repository.employee_repository import EmployeeRepository
+from repository.project_repository import ProjectRepository
+
 router = APIRouter(prefix="/employee-projects", tags=["employee-projects"])
 
 
-def get_employee_project_repository(db: Session = Depends(get_db)) -> EmployeeProjectRepository:
-    return EmployeeProjectRepository(db)
+def get_employee_project_handler(db: Session = Depends(get_db)) -> EmployeeProjectHandler:
+    return EmployeeProjectHandler(db, EmployeeProjectRepository(db),  EmployeeRepository(db), ProjectRepository(db))
 
 
 @router.post("/", response_model=EmployeeProjectResponse, status_code=status.HTTP_201_CREATED)
 async def add_employee_to_project(
         data: EmployeeProjectCreate,
-        repo: EmployeeProjectRepository = Depends(get_employee_project_repository)
+        handler: EmployeeProjectHandler = Depends(get_employee_project_handler)
 ):
-    success = repo.add_employee_to_project(data.employee_id, data.project_id)
+    success = handler.add_employee_to_project(data.employee_id, data.project_id)
     if not success:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
@@ -33,7 +37,7 @@ async def add_employee_to_project(
         )
 
     # Возвращаем созданную связь
-    association = repo.db.query(EmployeeProject).filter(
+    association = handler.db.query(EmployeeProject).filter(
         EmployeeProject.employee_id == data.employee_id,
         EmployeeProject.project_id == data.project_id
     ).first()
@@ -45,9 +49,9 @@ async def add_employee_to_project(
 async def remove_employee_from_project(
         employee_id: int,
         project_id: int,
-        repo: EmployeeProjectRepository = Depends(get_employee_project_repository)
+        handler: EmployeeProjectHandler = Depends(get_employee_project_handler)
 ):
-    success = repo.remove_employee_from_project(employee_id, project_id)
+    success = handler.remove_employee_from_project(employee_id, project_id)
     if not success:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -58,10 +62,10 @@ async def remove_employee_from_project(
 @router.get("/projects/{project_id}/employees", response_model=ProjectWithEmployees)
 async def get_project_employees(
         project_id: int,
-        repo: EmployeeProjectRepository = Depends(get_employee_project_repository)
+        handler: EmployeeProjectHandler = Depends(get_employee_project_handler)
 ):
     # Проверяем существование проекта
-    project_exists = repo.db.execute(
+    project_exists = handler.db.execute(
         text("SELECT 1 FROM project WHERE id = :project_id"),
         {"project_id": project_id}
     ).first()
@@ -73,12 +77,12 @@ async def get_project_employees(
         )
 
     # Получаем проект
-    project_result = repo.db.execute(
+    project_result = handler.db.execute(
         text("SELECT id, name, description FROM project WHERE id = :project_id"),
         {"project_id": project_id}
     ).first()
 
-    employees = repo.get_project_employees(project_id)
+    employees = handler.get_project_employees(project_id)
 
     return ProjectWithEmployees(
         id=project_result[0],
@@ -91,10 +95,10 @@ async def get_project_employees(
 @router.get("/employees/{employee_id}/projects", response_model=EmployeeWithProjects)
 async def get_employee_projects(
         employee_id: int,
-        repo: EmployeeProjectRepository = Depends(get_employee_project_repository)
+        handler: EmployeeProjectHandler = Depends(get_employee_project_handler)
 ):
     # Проверяем существование сотрудника
-    employee_exists = repo.db.execute(
+    employee_exists = handler.db.execute(
         text("SELECT 1 FROM employee WHERE id = :employee_id"),
         {"employee_id": employee_id}
     ).first()
@@ -106,12 +110,12 @@ async def get_employee_projects(
         )
 
     # Получаем сотрудника
-    employee_result = repo.db.execute(
+    employee_result = handler.db.execute(
         text("SELECT id, name, surname, patronymic FROM employee WHERE id = :employee_id"),
         {"employee_id": employee_id}
     ).first()
 
-    projects = repo.get_employee_projects(employee_id)
+    projects = handler.get_employee_projects(employee_id)
 
     return EmployeeWithProjects(
         id=employee_result[0],
@@ -124,6 +128,6 @@ async def get_employee_projects(
 
 @router.get("/", response_model=List[EmployeeProjectResponse])
 async def get_all_associations(
-        repo: EmployeeProjectRepository = Depends(get_employee_project_repository)
+        handler: EmployeeProjectHandler = Depends(get_employee_project_handler)
 ):
-    return repo.get_all_associations()
+    return handler.get_all_associations()

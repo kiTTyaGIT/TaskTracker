@@ -5,32 +5,29 @@ from typing import List
 from db_connect.db import get_db
 from repository.task_repository import TaskRepository
 from schemas.task_schema import Task, TaskCreate, TaskUpdate, TaskWithDetails
+from repository.project_repository import ProjectRepository
+from handler.task_handler import TaskHandler
+from repository.employee_repository import EmployeeRepository
 
 router = APIRouter(prefix="/tasks", tags=["tasks"])
 
-def get_task_repository(db: Session = Depends(get_db)) -> TaskRepository:
-    return TaskRepository(db)
+def get_task_handler(db: Session = Depends(get_db)) -> TaskHandler:
+    return TaskHandler(db, TaskRepository(db), ProjectRepository(db), EmployeeRepository(db))
 
 @router.get("/", response_model=List[Task])
 async def list_tasks(
     skip: int = 0,
     limit: int = 100,
-    repo: TaskRepository = Depends(get_task_repository)
+    handler: TaskHandler = Depends(get_task_handler)
 ):
-    return repo.get_all_tasks(skip=skip, limit=limit)
-
-@router.get("/with-details", response_model=List[TaskWithDetails])
-async def list_tasks_with_details(
-    repo: TaskRepository = Depends(get_task_repository)
-):
-    return repo.get_tasks_with_details()
+    return handler.get_all_tasks(skip=skip, limit=limit)
 
 @router.get("/{task_id}", response_model=Task)
 async def get_task(
     task_id: int,
-    repo: TaskRepository = Depends(get_task_repository)
+    handler: TaskHandler = Depends(get_task_handler)
 ):
-    task = repo.get_task_by_id(task_id)
+    task = handler.get_task_by_id(task_id)
     if not task:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -41,24 +38,24 @@ async def get_task(
 @router.get("/project/{project_id}", response_model=List[Task])
 async def get_tasks_by_project(
     project_id: int,
-    repo: TaskRepository = Depends(get_task_repository)
+    handler: TaskHandler = Depends(get_task_handler)
 ):
-    return repo.get_tasks_by_project(project_id)
+    return handler.get_tasks_by_project(project_id)
 
 @router.get("/employee/{employee_id}", response_model=List[Task])
 async def get_tasks_by_employee(
     employee_id: int,
-    repo: TaskRepository = Depends(get_task_repository)
+    handler: TaskHandler = Depends(get_task_handler)
 ):
-    return repo.get_tasks_by_employee(employee_id)
+    return handler.get_tasks_by_employee(employee_id)
 
 @router.post("/", response_model=Task, status_code=status.HTTP_201_CREATED)
 async def create_task(
     task_data: TaskCreate,
-    repo: TaskRepository = Depends(get_task_repository)
+    handler: TaskHandler = Depends(get_task_handler)
 ):
     try:
-        return repo.create_task(task_data.model_dump())
+        return handler.create_task(task_data.model_dump())
     except ValueError as e:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
@@ -69,10 +66,10 @@ async def create_task(
 async def update_task(
     task_id: int,
     task_data: TaskUpdate,
-    repo: TaskRepository = Depends(get_task_repository)
+    handler: TaskHandler = Depends(get_task_handler)
 ):
     try:
-        task = repo.update_task(task_id, task_data.model_dump(exclude_unset=True))
+        task = handler.update_task(task_id, task_data.model_dump(exclude_unset=True))
         if not task:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
@@ -89,10 +86,10 @@ async def update_task(
 async def assign_task(
     task_id: int,
     employee_id: int,
-    repo: TaskRepository = Depends(get_task_repository)
+    handler: TaskHandler = Depends(get_task_handler)
 ):
     try:
-        task = repo.assign_task_to_employee(task_id, employee_id)
+        task = handler.assign_task_to_employee(task_id, employee_id)
         if not task:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
@@ -109,9 +106,9 @@ async def assign_task(
 async def update_task_status(
     task_id: int,
     status: str,
-    repo: TaskRepository = Depends(get_task_repository)
+    handler: TaskHandler = Depends(get_task_handler)
 ):
-    task = repo.update_task_status(task_id, status)
+    task = handler.update_task_status(task_id, status)
     if not task:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -123,9 +120,9 @@ async def update_task_status(
 async def update_task_priority(
     task_id: int,
     priority: str,
-    repo: TaskRepository = Depends(get_task_repository)
+    handler: TaskHandler = Depends(get_task_handler)
 ):
-    task = repo.update_task_priority(task_id, priority)
+    task = handler.update_task_priority(task_id, priority)
     if not task:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -136,9 +133,9 @@ async def update_task_priority(
 @router.delete("/{task_id}", status_code=status.HTTP_204_NO_CONTENT)
 async def delete_task(
     task_id: int,
-    repo: TaskRepository = Depends(get_task_repository)
+    handler: TaskHandler = Depends(get_task_handler)
 ):
-    result = repo.delete_task(task_id)
+    result = handler.delete_task(task_id)
     if not result:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,

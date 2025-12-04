@@ -1,7 +1,8 @@
-from sqlalchemy import text
+from sqlalchemy import text, Boolean
 from sqlalchemy.orm import Session
 
 from entity.project_entity import Project
+from repository.task_repository import TaskRepository
 
 
 class ProjectRepository:
@@ -22,18 +23,13 @@ class ProjectRepository:
     def get_project_by_name(self, project_name: str) -> Project:
         return self.db.query(Project).filter(Project.name == project_name).first()
 
-    def delete_project_by_name(self, project_name: str) -> bool:
-        project = self.get_project_by_name(project_name)
-        if not project:
-            return False
+    def get_project_by_id(self, project_id: int) -> Project:
+        return self.db.query(Project).filter(Project.id == project_id).first()
 
-        self.db.execute(
-            text(""" 
-                DELETE FROM task t
-                WHERE t.project_id = :project_id
-            """),
-            {"project_id": project.id}
-        )
+    def is_project_exists(self, project_id: int) -> Boolean:
+        return self.db.query(Project).filter(Project.id == project_id).first()
+
+    def delete_project_by_name(self, project) -> bool:
         self.db.delete(project)
         self.db.commit()
         return True

@@ -1,4 +1,5 @@
 from entity.employee_entity import Employee
+from sqlalchemy import Boolean
 from sqlalchemy.orm import Session
 
 
@@ -41,3 +42,6 @@ class EmployeeRepository:
         self.db.commit()
         self.db.refresh(employee)
         return employee
+
+    def is_employee_exists(self, employee_id: int) -> Boolean:
+        return self.db.query(Employee).filter(Employee.id == employee_id).first()
