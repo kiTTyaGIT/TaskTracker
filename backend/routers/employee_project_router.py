@@ -65,10 +65,7 @@ async def get_project_employees(
         handler: EmployeeProjectHandler = Depends(get_employee_project_handler)
 ):
     # Проверяем существование проекта
-    project_exists = handler.db.execute(
-        text("SELECT 1 FROM project WHERE id = :project_id"),
-        {"project_id": project_id}
-    ).first()
+    project_exists = handler.project_repository.is_project_exists(project_id)
 
     if not project_exists:
         raise HTTPException(
@@ -77,17 +74,18 @@ async def get_project_employees(
         )
 
     # Получаем проект
-    project_result = handler.db.execute(
-        text("SELECT id, name, description FROM project WHERE id = :project_id"),
-        {"project_id": project_id}
-    ).first()
+    # project_result = handler.db.execute(
+    #     text("SELECT id, name, description FROM project WHERE id = :project_id"),
+    #     {"project_id": project_id}
+    # ).first()
+    project_result = handler.project_repository.get_project_by_id(project_id)
 
     employees = handler.get_project_employees(project_id)
 
     return ProjectWithEmployees(
-        id=project_result[0],
-        name=project_result[1],
-        description=project_result[2],
+        id=project_result.id,
+        name=project_result.name,
+        description=project_result.description,
         employees=employees
     )
 
@@ -98,10 +96,7 @@ async def get_employee_projects(
         handler: EmployeeProjectHandler = Depends(get_employee_project_handler)
 ):
     # Проверяем существование сотрудника
-    employee_exists = handler.db.execute(
-        text("SELECT 1 FROM employee WHERE id = :employee_id"),
-        {"employee_id": employee_id}
-    ).first()
+    employee_exists = handler.employee_repository.is_employee_exists(employee_id)
 
     if not employee_exists:
         raise HTTPException(
@@ -110,18 +105,19 @@ async def get_employee_projects(
         )
 
     # Получаем сотрудника
-    employee_result = handler.db.execute(
-        text("SELECT id, name, surname, patronymic FROM employee WHERE id = :employee_id"),
-        {"employee_id": employee_id}
-    ).first()
+    # employee_result = handler.db.execute(
+    #     text("SELECT id, name, surname, patronymic FROM employee WHERE id = :employee_id"),
+    #     {"employee_id": employee_id}
+    # ).first()
+    employee_result = handler.employee_repository.get_employee_by_id(employee_id)
 
     projects = handler.get_employee_projects(employee_id)
 
     return EmployeeWithProjects(
-        id=employee_result[0],
-        name=employee_result[1],
-        surname=employee_result[2],
-        patronymic=employee_result[3],
+        id=employee_result.id,
+        name=employee_result.name,
+        surname=employee_result.surname,
+        patronymic=employee_result.patronymic,
         projects=projects
     )
 
