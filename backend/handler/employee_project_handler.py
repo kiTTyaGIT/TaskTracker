@@ -1,6 +1,6 @@
+#обертка над слоем репозитория сотрудника-проекта
 from sqlalchemy.orm import Session
 from entity.employee_project_entity import EmployeeProject
-
 from repository.employee_repository import EmployeeRepository
 from repository.project_repository import ProjectRepository
 from repository.employee_project_repository import EmployeeProjectRepository
@@ -66,7 +66,9 @@ class EmployeeProjectHandler:
         return projects
 
     def get_all_employees_by_project_id(self, project_id: int):
+        """Получение всех сотрудников проекта по его ID"""
         return self.employee_project_repository.get_all_employees_by_project_id(project_id)
 
     def get_all_projects_by_employee_id(self, employee_id: int):
+        """Получение всех ID проектов сотрудника по его ID"""
         return self.employee_project_repository.get_all_projects_by_employee_id(employee_id)

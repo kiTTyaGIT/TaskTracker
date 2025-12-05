@@ -12,6 +12,7 @@ class Project(Base):
     description = Column(Text)
     start_date = Column(TIMESTAMP(timezone=True))
     finish_date = Column(TIMESTAMP(timezone=True))
+
 # Метод для строкового представления объекта
     def __repr__(self):
         return f"<Project(id={self.id}, name='{self.name}')>"

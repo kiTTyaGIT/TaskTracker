@@ -1,3 +1,4 @@
+# связи сотрудников
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from typing import List
@@ -11,6 +12,7 @@ from handler.employee_handler import EmployeeHandler
 router = APIRouter(prefix="/employees", tags=["employees"])
 
 def get_employee_handler(db: Session = Depends(get_db)) -> EmployeeHandler:
+    """Получение обертки над репозиторием сотрудников"""
     return EmployeeHandler(db, EmployeeRepository(db))
 
 @router.get("/", response_model=List[Employee])
@@ -19,6 +21,7 @@ async def list_employees(
     limit: int = 100,
     handler: EmployeeHandler = Depends(get_employee_handler)
 ):
+    """Получение списка всех сотрудников"""
     return handler.get_all_employees(skip=skip, limit=limit)
 
 @router.get("/{employee_id}", response_model=Employee)
@@ -26,11 +29,12 @@ async def get_employee(
     employee_id: int, 
     handler: EmployeeHandler = Depends(get_employee_handler)
 ):
+    """Получение сотрудника по ID"""
     employee = handler.get_employee_by_id(employee_id)
     if not employee:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail="Employee not found"
+            detail="Сотрудник не найден!"
         )
     return employee
 
@@ -39,6 +43,7 @@ async def create_employee(
     employee_data: EmployeeCreate, 
     handler: EmployeeHandler = Depends(get_employee_handler)
 ):
+    """Создание нового сотрудника"""
     return handler.create_employee(employee_data.model_dump())
 
 @router.put("/{employee_id}", response_model=Employee)
@@ -47,11 +52,12 @@ async def update_employee(
     employee_data: EmployeeUpdate, 
     handler: EmployeeHandler = Depends(get_employee_handler)
 ):
+    """Полное обновление сотрудника"""
     employee = handler.update_employee(employee_id, employee_data.model_dump(exclude_unset=True))
     if not employee:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail="Employee not found"
+            detail="Сотрудник не найден!"
         )
     return employee
 
@@ -60,11 +66,12 @@ async def delete_employee(
     employee_id: int, 
     handler: EmployeeHandler = Depends(get_employee_handler)
 ):
+    """Удаление сотрудника"""
     result = handler.delete_employee_by_id(employee_id)
     if not result:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail="Employee not found"
+            detail="Сотрудник не найден!"
         )
     return None
 
@@ -74,10 +81,11 @@ async def update_role(
     employee_id: int,
     handler: EmployeeHandler = Depends(get_employee_handler)
 ):
+    """Обновление роли сотрудника"""
     result = handler.delete_employee_by_id(employee_id)
     if not result:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail="Employee not found"
+            detail="Сотрудник не найден!"
         )
     return None

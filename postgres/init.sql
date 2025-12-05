@@ -1,3 +1,5 @@
+-- скрипт инициализации базы данных TaskTracker
+
 CREATE TYPE role_type AS ENUM ('Менеджер', 'Разработчик', 'Тестировщик', 'Аналитик');
 CREATE TYPE status_type AS ENUM ('Новая', 'В работе', 'Выполнена');
 CREATE TYPE priority_enum AS ENUM ('Низкий', 'Средний', 'Высокий');

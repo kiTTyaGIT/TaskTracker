@@ -1,7 +1,7 @@
+#обертка над слоем репозитория задачи
 from sqlalchemy.orm import Session
 from sqlalchemy import text
 from entity.task_entity import Task
-
 from repository.project_repository import ProjectRepository
 from repository.task_repository import TaskRepository
 from repository.employee_repository import EmployeeRepository

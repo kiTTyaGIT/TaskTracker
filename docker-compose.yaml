@@ -1,34 +1,69 @@
-version: '3.8'
+
+version: '3.8' # Версия формата docker-compose файла
 
 services:
+
   backend:
+    # Используем собранный образ из Docker Hub
     image: katusha2388/tasktracker-backend:latest
+    # Пробрасываем порт 8090 из контейнера на хост
+    # Хост:контейнер - теперь доступен по http://localhost:8090
     ports:
       - "8090:8090"
+    # Зависимость: сначала запустить postgres, затем backend
     depends_on:
       - postgres
+    # Переменные окружения для конфигурации приложения
     environment:
-      DATABASE_URL: postgresql://user:password@postgres:5432/task_tracker_db
+      # Строка подключения к базе данных PostgreSQL
+      # Формат: postgresql://пользователь:пароль@хост:порт/база_данных
+      # Здесь:
+      # - postgres - контейнер с PostgreSQL (имя сервиса из этого файла)
+      # - 5432 - стандартный порт PostgreSQL внутри сети Docker
+      # - task_tracker_db - название базы данных
+      DATABASE_URL: postgresql://postgres:postgres@postgres:5432/task_tracker_db
 
   frontend:
+    # Используем собранный образ из Docker Hub
     image: katusha2388/tasktracker-frontend:latest
+    # Пробрасываем порт 8501 из контейнера на хост
+    # Хост:контейнер - теперь доступен по http://localhost:8501
     ports:
       - "8501:8501"
+    # Зависимость: сначала запустить backend, затем frontend
+    # (фронтенд обращается к бэкенду по API)
     depends_on:
       - backend
-    environment:
+
+    environment: # Переменные окружения для конфигурации frontend
+      # Базовый URL для API запросов
+      # 8090 - порт, на котором слушает бэкенд внутри сети Docker
       API_BASE_URL: http://backend:8090
 
+  # База данных PostgreSQL
   postgres:
+    # Используем собранный образ из Docker Hub
     image: katusha2388/tasktracker-postgres:latest
+    # Переменные окружения для инициализации PostgreSQL
     environment:
+      # Название базы данных, которая будет создана при старте
       POSTGRES_DB: task_tracker_db
+      # Имя пользователя для доступа к PostgreSQL
       POSTGRES_USER: postgres
+      # Пароль пользователя для доступа к PostgreSQL
       POSTGRES_PASSWORD: postgres
+    # Пробрасываем порт 5432 из контейнера на хост
+    # Хост:контейнер - доступ для внешних инструментов (DBeaver, psql и т.д.)
     ports:
       - "5432:5432"
+    # Volume (том) для сохранения данных БД при перезапусках контейнера
     volumes:
+      # именованный volume (определен ниже):путь внутри контейнера, где PostgreSQL хранит данные
       - postgres_data:/var/lib/postgresql/data
 
+# Определение томов (volumes) для постоянного хранения данных
 volumes:
+  # Именованный volume для данных PostgreSQL
+  # При удалении контейнера данные сохраняются в этом volume
+  # Можно очистить командой: docker-compose down -v
   postgres_data:

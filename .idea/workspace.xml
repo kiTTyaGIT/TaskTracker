@@ -8,9 +8,12 @@
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/backend/db_connect/db.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/db_connect/db.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/backend/entity/employee_entity.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/entity/employee_entity.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/entity/employee_project_entity.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/entity/employee_project_entity.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/backend/entity/project_entity.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/entity/project_entity.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/entity/task_entity.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/entity/task_entity.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/handler/employee_handler.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/handler/employee_handler.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/handler/employee_project_handler.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/handler/employee_project_handler.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/handler/project_handler.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/handler/project_handler.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/handler/task_handler.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/handler/task_handler.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/main.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/backend/repository/employee_project_repository.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/repository/employee_project_repository.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/backend/repository/employee_repository.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/repository/employee_repository.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/backend/repository/project_repository.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/repository/project_repository.py" afterDir="false" />
@@ -19,6 +22,10 @@
       <change beforePath="$PROJECT_DIR$/backend/routers/employee_router.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/routers/employee_router.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/backend/routers/project_router.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/routers/project_router.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/backend/routers/task_router.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/routers/task_router.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/schemas/employee_project_schema.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/schemas/employee_project_schema.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/schemas/employee_schema.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/schemas/employee_schema.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/schemas/project_schema.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/schemas/project_schema.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/schemas/task_schema.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/schemas/task_schema.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/docker-compose.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/docker-compose.yaml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/frontend/Dockerfile" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/Dockerfile" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/frontend/frontend.py" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/frontend.py" afterDir="false" />
@@ -181,8 +188,8 @@
     <recent_temporary>
       <list>
         <item itemvalue="Docker.docker-compose-for-me.yaml.backend: Compose Deployment" />
-        <item itemvalue="Docker.docker-compose-for-me.yaml.frontend: Compose Deployment" />
         <item itemvalue="Docker.docker-compose-for-me.yaml: Compose Deployment" />
+        <item itemvalue="Docker.docker-compose-for-me.yaml.frontend: Compose Deployment" />
         <item itemvalue="Docker.docker-compose.yaml: Compose Deployment" />
         <item itemvalue="Docker.docker-compose.yaml.postgres: Compose Deployment" />
       </list>
@@ -308,7 +315,23 @@
       <option name="project" value="LOCAL" />
       <updated>1764530838707</updated>
     </task>
-    <option name="localTasksCounter" value="15" />
+    <task id="LOCAL-00015" summary="добавила хэндлеры">
+      <option name="closed" value="true" />
+      <created>1764888333218</created>
+      <option name="number" value="00015" />
+      <option name="presentableId" value="LOCAL-00015" />
+      <option name="project" value="LOCAL" />
+      <updated>1764888333218</updated>
+    </task>
+    <task id="LOCAL-00016" summary="фиксы">
+      <option name="closed" value="true" />
+      <created>1764932176365</created>
+      <option name="number" value="00016" />
+      <option name="presentableId" value="LOCAL-00016" />
+      <option name="project" value="LOCAL" />
+      <updated>1764932176365</updated>
+    </task>
+    <option name="localTasksCounter" value="17" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -335,17 +358,8 @@
     <MESSAGE value="Около рабочая версия" />
     <MESSAGE value="Фиксы" />
     <MESSAGE value="readme+корректный компоуз" />
+    <MESSAGE value="добавила хэндлеры" />
     <MESSAGE value="фиксы" />
     <option name="LAST_COMMIT_MESSAGE" value="фиксы" />
-  </component>
-  <component name="XDebuggerManager">
-    <breakpoint-manager>
-      <breakpoints>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/backend/routers/project_router.py</url>
-          <option name="timeStamp" value="1" />
-        </line-breakpoint>
-      </breakpoints>
-    </breakpoint-manager>
   </component>
 </project>

@@ -1,3 +1,4 @@
+# Слой доступа к данным сотрудников-проектов
 from sqlalchemy.orm import Session
 from sqlalchemy import text
 from entity.employee_project_entity import EmployeeProject
@@ -50,11 +51,11 @@ class EmployeeProjectRepository:
         return self.db.query(EmployeeProject).all()
 
     def get_all_employees_by_project_id(self, project_id: int):
+        """Получение всех сотрудников проекта по его ID"""
         employee_ids = self.db.query(EmployeeProject.employee_id).filter(EmployeeProject.project_id == project_id).all()
-
         return [eid[0] for eid in employee_ids]
 
     def get_all_projects_by_employee_id(self, employee_id: int):
+        """Получение всех ID проектов сотрудника по его ID"""
         project_ids = self.db.query(EmployeeProject.project_id).filter(EmployeeProject.employee_id == employee_id).all()
-
         return [pid[0] for pid in project_ids]

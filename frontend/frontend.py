@@ -1,55 +1,60 @@
-import streamlit as st
-import requests
-import pandas as pd
-import re
-from datetime import datetime
-import time
+# импорт необходимых библиотек
+import streamlit as st  # для создания веб-интерфейса
+import requests  # для отправки HTTP запросов к API
+import pandas as pd  # для работы с табличными данными
+import re  # для регулярных выражений (валидация)
+from datetime import datetime  # для работы с датами
+import time  # для работы со временем (кэширование)
 
 # Конфигурация API и приложения
 API_BASE_URL = "http://backend:8090"
+# настройка страницы Streamlit: заголовок вкладки, растягивание на всю ширину окна
 st.set_page_config(page_title="TaskTracker", layout="wide")
 
-# Инициализация session state
+# Инициализация session state -  это хранилище данных,
+# которое сохраняется между перезагрузками страницы в Streamlit
+# кэш для хранения результатов API-запросов
 if 'request_cache' not in st.session_state:
     st.session_state.request_cache = {}
+# хранит время последнего запроса для каждого кэшированного ключа
 if 'last_request_time' not in st.session_state:
     st.session_state.last_request_time = {}
+# отслеживает, какие формы уже были отправлены (предотвр.двойную отправку формы)
 if 'form_submissions' not in st.session_state:
     st.session_state.form_submissions = {}
 
-
+# валидация российского номера телефона
 def validate_phone(phone):
-    """Валидация российского номера телефона"""
     if not phone:
         return True
+    # [\s-]? - необязательный пробел или дефис
     pattern = r'^(\+7|7|8)?[\s\-]?\(?[489][0-9]{2}\)?[\s\-]?[0-9]{3}[\s\-]?[0-9]{2}[\s\-]?[0-9]{2}$'
     return re.match(pattern, phone) is not None
 
-
+# валидация почты
 def validate_email(email):
-    """Валидация email"""
     if not email:
         return True
     pattern = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
     return re.match(pattern, email) is not None
 
-
+# универсальная функция для API запросов с защитой от дублирования
 def make_request(endpoint, method="GET", data=None, force=False):
-    """Универсальная функция для API запросов с защитой от дублирования"""
-    # Создаем уникальный ключ для запроса
+    # создание уникального ключа для запроса
     request_key = f"{method}_{endpoint}_{str(data)}"
 
-    # Проверяем кэш и временную метку
+    # проверка кэша и временной метки
     current_time = time.time()
     if (not force and
             request_key in st.session_state.request_cache and
             request_key in st.session_state.last_request_time and
             current_time - st.session_state.last_request_time[request_key] < 2.0):  # 2 секунды кэш
         return st.session_state.request_cache[request_key]
-
+    # полный URL для запроса
     url = f"{API_BASE_URL}{endpoint}"
     try:
         response = None
+        # отправка запроса
         if method == "GET":
             response = requests.get(url, timeout=10)
         elif method == "POST":
@@ -63,17 +68,18 @@ def make_request(endpoint, method="GET", data=None, force=False):
         else:
             st.error(f"Неизвестный метод: {method}")
             return None
-
+        # проверка успешности ответа
         if response.status_code in [200, 201, 204]:
             result = response.json() if response.content else True
-            # Кэшируем результат
+            # кэширование результата и времени
             st.session_state.request_cache[request_key] = result
             st.session_state.last_request_time[request_key] = current_time
             return result
         else:
+            # если сервер вернул ошибку
             st.error(f"Ошибка: {response.status_code} - {response.text}")
             return None
-
+    # обработка различных исключений
     except requests.exceptions.ConnectionError:
         st.error("Не удалось подключиться к серверу. Убедитесь, что бэкенд запущен на порту 8090.")
         return None
@@ -84,19 +90,19 @@ def make_request(endpoint, method="GET", data=None, force=False):
         st.error(f"Ошибка подключения: {e}")
         return None
 
-
+# проверка была ли форма уже отправлена в текущем запуске
 def is_form_submitted(form_key):
-    """Проверяет, была ли форма уже отправлена в текущем запуске"""
+    # получение значения по ключу из словаря
     return st.session_state.form_submissions.get(form_key, False)
 
-
+# отметка формы как отправленной
 def mark_form_submitted(form_key):
-    """Отмечает форму как отправленную"""
+    # установка значения True для ключа формы в словаре
     st.session_state.form_submissions[form_key] = True
 
-
+# очистка всех отправленных форм (вызов после успешного действия)
 def clear_form_submissions():
-    """Очищает все отправленные формы (вызывать после успешного действия)"""
+    # полная очистка словаря form_submissions
     st.session_state.form_submissions.clear()
 
 

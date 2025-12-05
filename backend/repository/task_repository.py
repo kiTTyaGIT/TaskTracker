@@ -1,3 +1,4 @@
+# Слой доступа к данным задач
 from sqlalchemy.orm import Session
 from sqlalchemy import text
 from entity.task_entity import Task

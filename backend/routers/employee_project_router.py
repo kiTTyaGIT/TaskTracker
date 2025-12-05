@@ -1,3 +1,4 @@
+# связи сотрудника и проекта
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy import text
 from sqlalchemy.orm import Session
@@ -21,6 +22,7 @@ router = APIRouter(prefix="/employee-projects", tags=["employee-projects"])
 
 
 def get_employee_project_handler(db: Session = Depends(get_db)) -> EmployeeProjectHandler:
+    """Получение обертки над репозиторием сотрудников-проектов"""
     return EmployeeProjectHandler(db, EmployeeProjectRepository(db),  EmployeeRepository(db), ProjectRepository(db))
 
 
@@ -29,11 +31,13 @@ async def add_employee_to_project(
         data: EmployeeProjectCreate,
         handler: EmployeeProjectHandler = Depends(get_employee_project_handler)
 ):
+    """Добавление сотрудника к проекту"""
     success = handler.add_employee_to_project(data.employee_id, data.project_id)
     if not success:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Failed to add employee to project. Check if both exist and relationship doesn't already exist."
+            detail="Операция добавления сотрудника к проекту не выполнена. "
+                   "Убедитесь в существовании проекта и сотрудника, а также в отсутствии уже установленной связи между ними."
         )
 
     # Возвращаем созданную связь
@@ -51,6 +55,7 @@ async def remove_employee_from_project(
         project_id: int,
         handler: EmployeeProjectHandler = Depends(get_employee_project_handler)
 ):
+    """Удаление сотрудника из проекта"""
     success = handler.remove_employee_from_project(employee_id, project_id)
     if not success:
         raise HTTPException(
@@ -64,6 +69,7 @@ async def get_project_employees(
         project_id: int,
         handler: EmployeeProjectHandler = Depends(get_employee_project_handler)
 ):
+    """Получение всех сотрудников проекта"""
     # Проверяем существование проекта
     project_exists = handler.project_repository.is_project_exists(project_id)
 
@@ -73,11 +79,6 @@ async def get_project_employees(
             detail="Проект не найден!"
         )
 
-    # Получаем проект
-    # project_result = handler.db.execute(
-    #     text("SELECT id, name, description FROM project WHERE id = :project_id"),
-    #     {"project_id": project_id}
-    # ).first()
     project_result = handler.project_repository.get_project_by_id(project_id)
 
     employees = handler.get_project_employees(project_id)
@@ -95,6 +96,7 @@ async def get_employee_projects(
         employee_id: int,
         handler: EmployeeProjectHandler = Depends(get_employee_project_handler)
 ):
+    """Получение всех проектов сотрудника"""
     # Проверяем существование сотрудника
     employee_exists = handler.employee_repository.is_employee_exists(employee_id)
 
@@ -104,11 +106,6 @@ async def get_employee_projects(
             detail="Сотрудник не найден!"
         )
 
-    # Получаем сотрудника
-    # employee_result = handler.db.execute(
-    #     text("SELECT id, name, surname, patronymic FROM employee WHERE id = :employee_id"),
-    #     {"employee_id": employee_id}
-    # ).first()
     employee_result = handler.employee_repository.get_employee_by_id(employee_id)
 
     projects = handler.get_employee_projects(employee_id)
@@ -126,4 +123,5 @@ async def get_employee_projects(
 async def get_all_associations(
         handler: EmployeeProjectHandler = Depends(get_employee_project_handler)
 ):
+    """Получение всех связей сотрудников и проектов"""
     return handler.get_all_associations()

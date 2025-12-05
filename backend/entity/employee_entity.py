@@ -1,13 +1,10 @@
-# Модуль с моделями данных SQLAlchemy.
-# Определяет структуру таблицы сотрудников (Employee).
+# Модуль сотрудников
 
 from sqlalchemy import Column, Integer, Text
-# Импортируем базовый класс для моделей
+# Импорт базового класса для моделей
 from db_connect.db import Base
 
-
 class Employee(Base):
-    #соотносит класс к таблице БД
     __tablename__ = "employee"
 
     # primary_key=True - первичный ключ
@@ -21,6 +18,6 @@ class Employee(Base):
     mail = Column(Text)
     role = Column(Text)
 
-    # Метод для строкового представления объекта
+    # метод для строкового представления объекта
     def __repr__(self):
         return f"<Employee(id={self.id}, name='{self.name}', role='{self.role}')>"
